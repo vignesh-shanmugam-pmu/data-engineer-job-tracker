@@ -8,8 +8,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 
 companies = {
-    "Salesforce": "https://careers.salesforce.com/en/jobs/?search=data%20engineer&location=India",
-    "Apple": "https://jobs.apple.com/en-in/search?team=software-services&location=india",
+    "Cognizant": "https://careers.cognizant.com/us-en/jobs/?keyword=Data+Engineer&location=India&lat=&lng=&cname=India&ccode=IN&origin=global"
 }
 
 # 🔹 scrape jobs (simplified)
@@ -34,7 +33,7 @@ SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 creds = Credentials.from_service_account_info(creds_json, scopes=SCOPES)
 gc = gspread.authorize(creds)
 
-SHEET_ID = "PUT-YOUR-SHEET-ID-HERE"
+SHEET_ID = "1ieePp_GWfQDzonyHJCof9KRmIa0_VtwoJ0CP6curfOQ"
 worksheet = gc.open_by_key(SHEET_ID).sheet1
 
 # clear & write fresh data
