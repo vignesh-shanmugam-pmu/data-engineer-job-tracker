@@ -1,4 +1,4 @@
-name: Run Amazon Job Tracker
+name: Run Job Tracker
 
 on:
   workflow_dispatch:   # enables manual run button
