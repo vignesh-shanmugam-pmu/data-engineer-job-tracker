@@ -25,4 +25,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: amazon-job-results
-          path: job_updates_*.csv
+          path: ./job_updates_*.csv
+          if-no-files-found: warn
+

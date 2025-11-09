@@ -1,3 +1,4 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -8,30 +9,34 @@ url = "https://www.amazon.jobs/en/search?base_query=Data+Engineer&location=India
 
 print(f"🔍 Checking {company} job site...")
 
+results = []
+
 try:
-    res = requests.get(url, timeout=15)
-    soup = BeautifulSoup(res.text, "html.parser")
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+    res = requests.get(url, headers=headers, timeout=20)
 
-    job_cards = soup.find_all("a", href=True)
-    results = []
-
-    for tag in job_cards:
-        title = tag.text.strip()
-        if "Data Engineer" in title:
-            results.append({
-                "Date": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                "Company": company,
-                "Job Title": title,
-                "Link": "https://www.amazon.jobs" + tag["href"]
-            })
-
-    if results:
-        df = pd.DataFrame(results)
-        filename = f"job_updates_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
-        df.to_csv(filename, index=False)
-        print(f"✅ Found {len(results)} jobs and saved to {filename}")
+    if res.status_code != 200:
+        print(f"⚠️ Unable to access {company} page. Status: {res.status_code}")
     else:
-        print("❌ No 'Data Engineer' jobs found on Amazon.")
+        soup = BeautifulSoup(res.text, "html.parser")
+
+        for tag in soup.find_all(["a", "h3", "span"], text=True):
+            title = tag.text.strip()
+            if "Data Engineer" in title:
+                results.append({
+                    "Date": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                    "Company": company,
+                    "Job Title": title,
+                    "Link": url
+                })
 
 except Exception as e:
     print(f"🔴 Error: {e}")
+
+# Always create CSV, even if empty
+filename = f"job_updates_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
+pd.DataFrame(results).to_csv(filename, index=False, encoding="utf-8-sig")
+
+# Debug print
+print(f"✅ Saved {len(results)} job(s) to file: {filename}")
+print(f"📁 File exists: {os.path.exists(filename)} at {os.getcwd()}")
