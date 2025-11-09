@@ -20,7 +20,8 @@ jobs:
 
       - name: Run tracker
         run: python job_tracker.py
-
+        env:
+          GOOGLE_SHEETS_CREDS: ${{ secrets.GOOGLE_SHEETS_CREDS }}
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
