@@ -1,30 +1,25 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 from datetime import datetime
 
-companies = {
-    "Salesforce": "https://careers.salesforce.com/en/jobs/?search=data%20engineer&location=India",
-    "Apple": "https://jobs.apple.com/en-in/search?team=software-services&location=india",
-    "Atlassian": "https://www.atlassian.com/company/careers/all-jobs",
-}
+company = "Amazon"
+url = "https://www.amazon.jobs/content/en/job-categories/software-development?keyword%5B%5D=Data+Engineer&country%5B%5D=IN"
 
-print("🔍 Checking job sites...")
+print(f"🔍 Checking {company} job site...")
 
 results = []
 
-for company, url in companies.items():
-    try:
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-        res = requests.get(url, headers=headers, timeout=20)
+try:
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+    res = requests.get(url, headers=headers, timeout=20)
 
-        if res.status_code != 200:
-            print(f"⚠️  {company}: Failed to access ({res.status_code})")
-            continue
-
+    if res.status_code != 200:
+        print(f"⚠️ Unable to access {company} page. Status: {res.status_code}")
+    else:
         soup = BeautifulSoup(res.text, "html.parser")
 
-        found = 0
         for tag in soup.find_all(["a", "h3", "span"], text=True):
             title = tag.text.strip()
             if "Data Engineer" in title:
@@ -34,14 +29,14 @@ for company, url in companies.items():
                     "Job Title": title,
                     "Link": url
                 })
-                found += 1
 
-        print(f"🟢 {company}: Found {found} possible job(s)")
+except Exception as e:
+    print(f"🔴 Error: {e}")
 
-    except Exception as e:
-        print(f"🔴 {company}: Error - {e}")
-
-# Save results (always creates CSV)
+# Always create CSV, even if empty
 filename = f"job_updates_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
 pd.DataFrame(results).to_csv(filename, index=False, encoding="utf-8-sig")
-print(f"✅ Saved {len(results)} total job(s) to {filename}")
+
+# Debug print
+print(f"✅ Saved {len(results)} job(s) to file: {filename}")
+print(f"📁 File exists: {os.path.exists(filename)} at {os.getcwd()}")
